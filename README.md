@@ -251,21 +251,3 @@ pytest
 
 ---
 
-## 12. Interview Q&A Cheatsheet
-
-**Q1: Why did you choose Multinomial Naive Bayes instead of a Deep Learning model (like BERT or LSTM)?**
-> *Answer:* In telecommunications routing (SMSCs), message volume reaches tens of thousands of SMS per second. Deep learning models introduce significant latency (50-200ms) and require expensive GPU infrastructure. Multinomial Naive Bayes with TF-IDF provides sub-millisecond inference (<1ms), uses negligible memory (<10MB), and achieves **99.01% accuracy and 99.29% precision**, satisfying carrier-grade throughput and reliability requirements.
-
-**Q2: What is data leakage, and how did you prevent it?**
-> *Answer:* Data leakage occurs when test data information inadvertently influences the model training process. If we fit a TF-IDF vectorizer across the entire dataset before splitting, the learned vocabulary and inverse document frequency (IDF) weights reflect the test set, creating overly optimistic metrics. I prevented this by wrapping feature extraction and the classifier inside a `sklearn.pipeline.Pipeline`, ensuring `fit()` is called exclusively on `X_train`.
-
-**Q3: Why are the predicted probabilities labeled as "uncalibrated"?**
-> *Answer:* Multinomial Naive Bayes assumes that features (words and bigrams) are conditionally independent given the class. In natural language, words frequently co-occur (e.g., "click" and "here"). This violated assumption does not hurt classification decisions, but it causes the posterior probability $P(\text{Spam} \mid W)$ to become overly confident—pushing outputs close to 0.0 or 1.0. Therefore, probabilities must be presented as uncalibrated decision scores rather than true empirical probabilities unless calibrated with Platt scaling or isotonic regression.
-
-**Q4: Which is worse in telecom SMS spam filtering: a False Positive or a False Negative?**
-> *Answer:* A False Positive is generally far more damaging. If a legitimate bank OTP, train reservation, or emergency communication is quarantined as spam, the subscriber suffers immediate disruption and the carrier faces SLA violations and regulatory fines. Therefore, we prioritize high Precision (99.29%) so legitimate messages are virtually never blocked, while maintaining strong Recall (93.29%) to catch phishing campaigns.
-
----
-
-## License
-Educational & Research Demonstration — Machine Learning Project.
